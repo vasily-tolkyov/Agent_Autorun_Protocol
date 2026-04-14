@@ -1,52 +1,81 @@
-# Dependencies
+# Dependencies And Technical Notes
 
 English | [简体中文](DEPENDENCIES.zh-CN.md)
 
-## Skill Dependency Graph
+This file is the technical companion to the main README.
 
-```text
-phase-stage-autoplan-entry
-  -> phase-stage-autorun-protocol
-       -> generator-critic-verification-loop
-       -> aclx-runtime
-       -> acl-x-protocol
-       -> codex-subagent-router
-```
+If you are new to the bundle, start with [README.md](README.md) first. This file is for readers who want to understand the supporting skills and the internal design choices.
 
 ## Bundled Skill Dependencies
 
 ### `phase-stage-autoplan-entry`
 
-- Hard dependency: `phase-stage-autorun-protocol`
-- Runtime posture: stays in `t0`
-- Output contract: Markdown planning artifacts plus `planning-state.aclx`
+- depends directly on `phase-stage-autorun-protocol`
+- creates the planning artifacts used by the execution layer
+- does not depend on the strict verification loop for normal planning
 
 ### `phase-stage-autorun-protocol`
 
-- Hard dependencies for real execution: `aclx-runtime`, `acl-x-protocol`
-- Escalation dependency: `generator-critic-verification-loop`
-- Delegation dependency: `codex-subagent-router`
-- Runtime posture: starts in `t0`, promotes only from runtime facts
+- depends on `aclx-runtime` and `acl-x-protocol` for long-running or machine-managed execution
+- can escalate into `generator-critic-verification-loop` when a stage needs repeated audit-and-repair rounds
+- uses `codex-subagent-router` when real delegation starts
 
 ### `generator-critic-verification-loop`
 
-- Hard dependencies for real delegation: `aclx-runtime`, `codex-subagent-router`
-- Optional dependency by scenario: `acl-x-protocol` when reusable shared ACL-X packets are needed
-- Runtime posture: `t0` for discussion, `t3` for real three-agent execution
+- depends on `aclx-runtime` when the loop becomes a real long-running shared-state flow
+- uses `codex-subagent-router` to choose generator, critic, and refiner agents
+- may use `acl-x-protocol` when reusable shared packets or resumable machine state are needed
 
 ## External Environment Dependencies
 
-The bundle does not ship project-specific toolchains. The target machine still needs:
+The bundle does not include project-specific toolchains. The target machine still needs:
 
 - Python 3.10+
-- Access to a writable Codex skills directory
-- Access to a writable target project directory
-- Whatever the target project needs for build/test verification, such as `npm`, `pytest`, `cargo`, `go`, or `dotnet`
+- a writable Codex skills directory
+- a writable target project directory
+- the build/test tools required by the target project, such as `npm`, `pytest`, `cargo`, `go`, or `dotnet`
 
-## Why The Bundle Ships These Dependencies
+## Why These Supporting Skills Are Bundled
 
-- `phase-stage-autoplan-entry` alone can plan, but cannot deliver the task end-to-end.
-- `phase-stage-autorun-protocol` can execute staged plans, but once it promotes to real runtime-backed loops it needs ACL-X runtime support.
-- `generator-critic-verification-loop` is the safety layer for difficult stages and depends on both routing and machine-owned loop state.
+The main workflow looks simple from the outside, but long tasks need support under the hood:
 
-Bundling all six skills removes the most common installation failure mode: planning appears available, but execution later stalls because one of the runtime or routing skills is missing.
+- planning needs a reliable handoff into execution
+- execution needs a stable way to remember progress during longer runs
+- hard stages need a safer review-and-repair loop
+- real multi-agent execution needs a consistent routing policy
+
+Bundling these supporting skills avoids a common failure mode: planning works, but execution later stalls because a required runtime or routing skill is missing.
+
+## Technical Principles
+
+### Planning And Execution Are Separate On Purpose
+
+The bundle separates:
+
+- planning artifacts, which are mainly for understanding and reviewing the work
+- execution artifacts, which are mainly for keeping the running task on track
+
+This keeps planning readable while making execution more stable.
+
+### Control State Is More Structured Than Human-Facing Plans
+
+The visible engineering plan is written for people to review.
+
+The internal control and index data are more structured so the execution layer can:
+
+- know which phase is current
+- know which stages are ready
+- know when to stop instead of guessing
+- resume long tasks more safely
+
+### The Runtime Model Is Layered
+
+The bundle does not treat every task as a heavy long-running workflow from the first minute.
+
+Instead:
+
+- planning starts lightweight
+- staged execution adds stronger state handling when needed
+- the strict verification loop is only used when a stage truly needs it
+
+This keeps simple tasks simpler while still supporting difficult runs.
