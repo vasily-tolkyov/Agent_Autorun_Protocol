@@ -6,38 +6,43 @@ This repository is a Codex skill bundle for turning a vague engineering task int
 
 If you only want the short version:
 
-- `phase-stage-autoplan-entry` helps you understand the task and produce a usable engineering plan.
-- `phase-stage-autorun-protocol` helps you execute that plan continuously instead of stopping after every small step.
-- `generator-critic-verification-loop` helps you add a stricter review-and-repair loop when a stage is risky or easy to get wrong.
+- `phase-stage-autoplan-entry` turns a vague task into a structured engineering plan.
+- `phase-stage-autorun-protocol` keeps long and complex projects moving automatically instead of waiting for manual nudges.
+- `generator-critic-verification-loop` audits every completed stage before the run advances, so automatic progress stays accurate.
 
 ## Who This Is For
 
-This bundle is for teams or individuals who want Codex to do more than one-off edits.
+This bundle is for teams or individuals who want Codex to handle long-running engineering work with as little manual steering as possible.
 
-It is useful when you want Codex to:
+It is especially useful when you want:
 
-- break a messy request into clear phases and stages
-- keep working through a staged plan without losing track
-- stop safely when the next phase is not fully planned yet
-- apply a stronger verification loop to hard stages
+- automatic execution for long projects and complex projects, not just one-off edits
+- the run to keep moving without repeated human supervision or stage-by-stage pushing
+- every finished stage to pass through `$generator-critic-verification-loop` before the next stage begins, so automatic progress stays precise
+- lower token cost and less coordination overhead during repeated loops and long task advancement by using an ACL-X-based control strategy
 
-You do not need to know ACL-X or the hybrid runtime model to use the bundle.
+You do not need to understand ACL-X before using the bundle. The workflow is designed so you can start from the planning and execution entrypoints first, then read the implementation notes later if you need them.
+
+The bundle is usually more stable when it is used together with `ACLX_hybrid_Strategy`, because that pairing keeps lightweight work simple while making long-running loops, resumable execution, and automatic advancement more disciplined.
 
 ## The Three Main Skills
 
 ### `phase-stage-autoplan-entry`
 
 What it does:
+
 - reads the task and scans the target project
 - writes a practical phase/stage engineering plan
 - pauses for approval before execution starts
 
 Why it is useful:
+
 - gives you a concrete plan instead of jumping straight into implementation
 - keeps future work visible without pretending every later detail is already known
 - makes it easier to review the direction before any code is changed
 
 How to use it:
+
 - use this first when the task does not already have a complete phase/stage plan
 - generate the plan
 - review it
@@ -46,36 +51,44 @@ How to use it:
 ### `phase-stage-autorun-protocol`
 
 What it does:
+
 - takes the approved plan and executes it stage by stage
 - keeps going through the current ready work instead of stopping after each stage
 - blocks safely when the next phase still needs more detailed planning
 
 Why it is useful:
-- reduces drift during longer tasks
-- keeps execution aligned to an explicit plan
-- makes stage progression and blocking conditions easier to understand
+
+- it is built for long-running projects and complex engineering work
+- it keeps advancing without routine human prompting or supervision
+- it keeps execution aligned to an explicit plan instead of drifting mid-run
+- it enforces a strict post-stage audit-and-repair gate before the next stage starts
 
 How to use it:
+
 - use this after `phase-stage-autoplan-entry` has produced and approved a plan
 - let it continue through the current ready stages
+- expect every completed stage to be audited and repaired as needed through `generator-critic-verification-loop` before the run advances
 - if it stops because the next phase is still only outlined, expand that phase and continue
 
 ### `generator-critic-verification-loop`
 
 What it does:
-- adds a three-role execution loop for difficult stages
+
+- adds a three-role execution loop after each completed stage in the autorun flow
 - separates implementation, audit, and repair planning
 - repeats until the work is consistently passing review
 
 Why it is useful:
+
 - catches mistakes that a single pass can miss
 - keeps review separate from implementation
-- helps hard or high-risk stages converge more reliably
+- helps long automatic runs stay accurate instead of only moving fast
 
 How to use it:
-- use this only when a stage is complex enough to need repeated review-and-repair rounds
-- most normal planning and staged execution should start without it
-- bring it in when simple stage execution is not enough
+
+- in the full autorun flow, treat this as the required post-stage audit gate
+- each stage build is reviewed here before the next stage begins
+- use it directly on its own only when you want the same strict review-and-repair loop outside the full staged autorun workflow
 
 ## Supporting Skills Included In The Bundle
 
@@ -93,7 +106,7 @@ Most users do not need to start with these directly. They are bundled because th
 2. Review the generated phases and stages.
 3. Approve the plan.
 4. Use `phase-stage-autorun-protocol` to execute the approved stages.
-5. If a stage turns out to be unusually risky or unstable, bring in `generator-critic-verification-loop`.
+5. After each stage build, let `generator-critic-verification-loop` audit and repair the result before the run advances.
 
 ## Quick Start
 
@@ -147,11 +160,11 @@ Use $phase-stage-autorun-protocol to execute the approved plan.
 
 ## How It Works Under The Hood
 
-The bundle has a planning layer, an execution layer, and an optional strict verification layer.
+The bundle has a planning layer, an execution layer, and a strict verification layer.
 
 - Planning turns the task into phases and stages.
 - Execution walks through the ready stages continuously.
-- Strict verification adds deeper review when a stage needs more than a single implementation pass.
+- Strict verification audits every completed stage before the next one begins.
 
 If you want the technical details behind the shared state model, runtime behavior, and bundled dependencies, see [DEPENDENCIES.md](DEPENDENCIES.md).
 
