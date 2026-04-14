@@ -1,0 +1,45 @@
+name: validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile scripts
+        shell: pwsh
+        run: |
+          python -m py_compile `
+            scripts\validate_bundle.py `
+            skills\phase-stage-autorun-protocol\scripts\autorun_protocol.py `
+            skills\phase-stage-autorun-protocol\scripts\runtime_bridge_lib.py `
+            skills\phase-stage-autorun-protocol\scripts\run_phase_stage_autorun.py `
+            skills\phase-stage-autorun-protocol\scripts\init_runtime_bridge.py `
+            skills\phase-stage-autorun-protocol\scripts\update_runtime_bridge.py `
+            skills\phase-stage-autorun-protocol\scripts\resume_from_checkpoint.py `
+            skills\phase-stage-autorun-protocol\scripts\migrate_runtime_bridge.py `
+            skills\phase-stage-autorun-protocol\scripts\smoke_test_runtime_bridge.py `
+            skills\phase-stage-autoplan-entry\scripts\planning_lib.py `
+            skills\phase-stage-autoplan-entry\scripts\run_phase_stage_autoplan.py `
+            skills\phase-stage-autoplan-entry\scripts\smoke_test_autoplan_entry.py
+
+      - name: Validate release bundle
+        shell: pwsh
+        run: |
+          python scripts\validate_bundle.py
+
+      - name: Run core smoke tests
+        shell: pwsh
+        run: |
+          python skills\phase-stage-autorun-protocol\scripts\smoke_test_runtime_bridge.py
+          python skills\phase-stage-autoplan-entry\scripts\smoke_test_autoplan_entry.py

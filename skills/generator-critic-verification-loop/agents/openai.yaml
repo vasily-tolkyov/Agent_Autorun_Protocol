@@ -1,0 +1,7 @@
+interface:
+  display_name: "Generator Critic Refiner Loop"
+  short_description: "Run a dual-mode, runtime-backed three-agent loop once real generator, critic, and refiner handoffs begin."
+  default_prompt: "Use $generator-critic-verification-loop only when real generator, critic, and refiner handoffs are starting; keep pure ACL-X design or skill-editing work in t0."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,10 @@
+{
+  "runId": "{{run_id}}",
+  "status": "active",
+  "currentStageId": "{{current_stage_id}}",
+  "stageState": "{{stage_state}}",
+  "nextAction": "{{next_action}}",
+  "blocker": "{{blocker}}",
+  "resumePoint": "{{resume_point}}",
+  "updatedAt": "{{updated_at}}"
+}

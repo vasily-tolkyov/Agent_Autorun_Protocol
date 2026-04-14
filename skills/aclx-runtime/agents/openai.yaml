@@ -1,0 +1,7 @@
+interface:
+  display_name: "ACL-X Runtime"
+  short_description: "ACL-X only after reusable machine state starts"
+  default_prompt: "Stay NL until the run actually starts reusable machine-only state."
+
+policy:
+  allow_implicit_invocation: false
