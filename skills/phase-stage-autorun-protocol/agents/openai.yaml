@@ -1,7 +1,7 @@
 interface:
   display_name: "Phase/Stage Autorun"
-  short_description: "Run staged Markdown plans with audit gates."
-  default_prompt: "Use $phase-stage-autorun-protocol to execute the provided Markdown phase/stage plan continuously. Start in t0 to read the protocol, derive the queue, and preflight the stage. Promote to t3 only when real delegation or repeated repair work begins. Then activate $aclx-runtime, create one shared run-package.aclx, and continue with compact ACL-X state deltas while auditing and repairing each finished stage before advancing."
+  short_description: "Auto-advance long staged tasks with built-in audit and repair."
+  default_prompt: "Use $phase-stage-autorun-protocol to keep this long-running phase/stage plan moving automatically. Continue through the planned stages without asking for routine supervision, use $generator-critic-verification-loop after each completed stage to audit and repair the result before advancing, and stop only for real hard blockers, missing plan detail, or unsafe actions."
 
 policy:
   allow_implicit_invocation: true

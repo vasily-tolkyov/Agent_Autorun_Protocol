@@ -1,11 +1,15 @@
 ---
 name: phase-stage-autorun-protocol
-description: "Execute multi-phase engineering work continuously from ordered Markdown phase/stage plans, with a mandatory post-stage audit-and-repair gate on every completed stage. Start in t0, promote to t3 only when real delegation or looped repair work begins, then keep compact ACL-X control state until the final stage passes."
+description: "Automatically drive long-running, multi-phase engineering work from ordered Markdown phase/stage plans, keeping complex tasks moving forward without routine human supervision. Use when Codex should continue through planned stages on its own, invoke generator-critic-verification-loop to audit and repair each completed stage, and stop only for real hard blockers or missing plan detail."
 ---
 
 # Phase Stage Autorun Protocol
 
 Use this skill as run policy for the entire project, not as a one-stage hint. Once execution starts, keep the same policy active until the final required stage is complete, audited, repaired, and verified, or until a hard blocker makes safe continuation impossible.
+
+Use it for long-running or complex tasks that should keep advancing without repeated human nudges. The intended behavior is automatic continuation across the planned phase/stage queue, with [$generator-critic-verification-loop](/Users/86139/.codex/skills/generator-critic-verification-loop/SKILL.md) acting as the accuracy guardrail after each stage so the run does not trade speed for correctness.
+
+Normal progress should not require manual supervision or stage-by-stage approval. This protocol is designed to keep building, auditing, repairing, and advancing on its own, and to interrupt only when a real hard blocker, missing plan detail, or unsafe action prevents responsible continuation.
 
 This skill is hybrid-aware:
 
@@ -14,7 +18,7 @@ This skill is hybrid-aware:
 - promote to `t3` only when runtime facts require it
 - after promotion, activate `$aclx-runtime` and keep the control flow in a compact ACL-X contract instead of relying on free-text memory
 
-The goal is to preserve the current protocol's continuous execution behavior while making the outer phase/stage loop explicit enough to resist drift, pauses, and accidental early completion.
+The goal is to preserve the current protocol's continuous execution behavior for long tasks while making the outer phase/stage loop explicit enough to resist drift, pauses, accidental early completion, and silent quality regressions.
 
 ## Required inputs
 
